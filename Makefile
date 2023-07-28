@@ -7,3 +7,9 @@ build-azure:
 	ARTIFACTS_DIR=`pwd`/.azure-func \
 	CLOUD_TARGET=azure \
 	make -C hello-world
+
+test-aws: build-aws
+	sam local invoke -e events/event-n.json
+
+test-azure: build-azure
+	func start

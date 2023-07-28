@@ -4,7 +4,6 @@ package main
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"net/http"
 
@@ -12,7 +11,7 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 )
 
-func awsHandler(ctx context.Context, req events.APIGatewayProxyRequest) (resp events.APIGatewayProxyResponse, err error) {
+func awsHandler(req events.APIGatewayProxyRequest) (resp events.APIGatewayProxyResponse, err error) {
 	bodyBytes, err := json.Marshal(req.Body)
 	if err != nil {
 		resp.StatusCode = http.StatusBadRequest
