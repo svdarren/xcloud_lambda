@@ -1,4 +1,9 @@
-.PHONY: build
+.PHONY: build-aws build-azure
 
-build:
-	CGO_ENABLED=0 sam build
+build-aws:
+	CLOUD_TARGET=aws sam build
+
+build-azure:
+	ARTIFACTS_DIR=`pwd`/.azure-func \
+	CLOUD_TARGET=azure \
+	make -C hello-world
