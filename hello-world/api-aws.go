@@ -30,6 +30,6 @@ func awsHandler(req events.APIGatewayProxyRequest) (resp events.APIGatewayProxyR
 	return resp, nil
 }
 
-func main() {
+func cloudSpecificSetup() {
 	lambda.Start(awsHandler)
 }

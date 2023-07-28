@@ -1,5 +1,7 @@
 .PHONY: build-aws build-azure
 
+all: build-aws build-azure
+
 build-aws:
 	CLOUD_TARGET=aws sam build
 

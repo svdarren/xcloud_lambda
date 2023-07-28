@@ -16,7 +16,7 @@ func azureHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, body)
 }
 
-func main() {
+func cloudSpecificSetup() {
 	listenAddr := ":8080"
 	if val, ok := os.LookupEnv("FUNCTIONS_CUSTOMHANDLER_PORT"); ok {
 		listenAddr = ":" + val

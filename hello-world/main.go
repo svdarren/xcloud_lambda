@@ -32,3 +32,7 @@ func handler(req *http.Request) (status int, body string, err error) {
 
 	return http.StatusOK, greeting, nil
 }
+
+func main() {
+	cloudSpecificSetup()
+}
