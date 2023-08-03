@@ -1,17 +1,26 @@
-//go:build !azure
+//go:build aws
 
 package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 )
 
-func awsHandler(req events.APIGatewayProxyRequest) (resp events.APIGatewayProxyResponse, err error) {
+type awsContext struct {
+	// When the handler needs other data, add it here
+	cloud string
+}
+
+func (a *awsContext) awsHandler(_ context.Context, req events.APIGatewayProxyRequest) (resp events.APIGatewayProxyResponse, err error) {
+	log.Printf("%d", a.cloud)
 	bodyBytes, err := json.Marshal(req.Body)
 	if err != nil {
 		resp.StatusCode = http.StatusBadRequest
@@ -22,7 +31,11 @@ func awsHandler(req events.APIGatewayProxyRequest) (resp events.APIGatewayProxyR
 		resp.StatusCode = http.StatusInternalServerError
 		return resp, err
 	}
-	resp.StatusCode, resp.Body, err = handler(httpReq)
+	r := incomingRequest{
+		httpReq,
+		a.cloud,
+	}
+	resp.StatusCode, resp.Body, err = r.handle()
 	if err != nil {
 		resp.StatusCode = http.StatusInternalServerError
 		return resp, err
@@ -31,5 +44,8 @@ func awsHandler(req events.APIGatewayProxyRequest) (resp events.APIGatewayProxyR
 }
 
 func cloudSpecificSetup() {
-	lambda.Start(awsHandler)
+	a := awsContext{
+		cloud: os.Getenv("CLOUD_PROVIDER"),
+	}
+	lambda.StartHandlerFunc(a.awsHandler)
 }

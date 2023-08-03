@@ -10,8 +10,17 @@ build-azure:
 	CLOUD_TARGET=azure \
 	make -C hello-world
 
-test-aws: build-aws
+invoke-aws: build-aws
 	sam local invoke -e events/event-n.json
 
+test-aws: build-aws
+	sam local start-api --warm-containers EAGER
+
 test-azure: build-azure
-	func start
+	func start --port 8081
+
+test-docker:
+	docker compose up --build
+
+hello-all:
+	curl localhost:3000/hello localhost:8081/api/hello-world localhost:8080

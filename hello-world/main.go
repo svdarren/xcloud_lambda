@@ -5,25 +5,15 @@ import (
 	"net/http"
 )
 
-type Query struct {
-	Name string `json:"name"`
+type incomingRequest struct {
+	request *http.Request
+	cloud   string
 }
 
-type Request struct {
-	Body    string                 `json:"body"`
-	Headers map[string]interface{} `json:"headers"`
-	Query   Query                  `json:"queryStringParameters"`
-}
-
-type Response struct {
-	Body       string `json:"body"`
-	StatusCode int
-}
-
-func handler(req *http.Request) (status int, body string, err error) {
+func (r incomingRequest) handle() (status int, body string, err error) {
 	var greeting string
 
-	name := req.URL.Query().Get("name")
+	name := r.cloud
 	if name == "" {
 		greeting = "Hello, world!\n"
 	} else {
