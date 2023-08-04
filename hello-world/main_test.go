@@ -1,6 +1,7 @@
 package main
 
 import (
+	"hello-world/api"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -9,27 +10,30 @@ import (
 func TestHandler(t *testing.T) {
 	testCases := []struct {
 		name           string
-		request        incomingRequest
+		request        api.IncomingRequest
+		handler        api.RequestHandler
 		expectedStatus int
 		expectedBody   string
 		expectedError  error
 	}{
 		{
 			name: "Basic",
-			request: incomingRequest{
-				request: httptest.NewRequest(http.MethodGet, "/", nil),
-				cloud:   "",
+			request: api.IncomingRequest{
+				Request: httptest.NewRequest(http.MethodGet, "/", nil),
+				Cloud:   "",
 			},
+			handler:        handle,
 			expectedStatus: http.StatusOK,
 			expectedBody:   "Hello, world!\n",
 			expectedError:  nil,
 		},
 		{
 			name: "Include Cloud Provider variable",
-			request: incomingRequest{
-				request: httptest.NewRequest(http.MethodGet, "/", nil),
-				cloud:   "Unit Test",
+			request: api.IncomingRequest{
+				Request: httptest.NewRequest(http.MethodGet, "/", nil),
+				Cloud:   "Unit Test",
 			},
+			handler:        handle,
 			expectedStatus: http.StatusOK,
 			expectedBody:   "Hello, Unit Test!\n",
 			expectedError:  nil,
@@ -38,7 +42,7 @@ func TestHandler(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			status, response, err := testCase.request.handle()
+			status, response, err := testCase.handler(&testCase.request)
 			if err != testCase.expectedError {
 				t.Errorf("Expected error %v, but got %v", testCase.expectedError, err)
 			}

@@ -1,6 +1,6 @@
 //go:build !aws
 
-package main
+package api
 
 import (
 	"fmt"
@@ -9,29 +9,25 @@ import (
 	"os"
 )
 
-type httpContext struct {
-	// When the handler needs other data, add it here
-	cloud string
-}
-
 func (c *httpContext) httpHandler(w http.ResponseWriter, req *http.Request) {
-	r := incomingRequest{
+	r := IncomingRequest{
 		req,
 		c.cloud,
 	}
-	status, body, err := r.handle()
+	status, body, err := c.clientHandler(&r)
 	_ = status
 	_ = err
 	fmt.Fprint(w, body)
 }
 
-func cloudSpecificSetup() {
+func CloudSpecificSetup(handler RequestHandler) {
 	listenAddr := ":8080"
 	if val, ok := os.LookupEnv("FUNCTIONS_CUSTOMHANDLER_PORT"); ok {
 		listenAddr = ":" + val
 	}
 	ctx := httpContext{
-		cloud: os.Getenv("CLOUD_PROVIDER"),
+		cloud:         os.Getenv("CLOUD_PROVIDER"),
+		clientHandler: handler,
 	}
 	log.Printf("CLOUD_PROVIDER set to %s", ctx.cloud)
 	http.HandleFunc("/", ctx.httpHandler)
